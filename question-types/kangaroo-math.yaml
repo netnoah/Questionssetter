@@ -1,0 +1,48 @@
+name: 袋鼠数学
+description: 袋鼠数学竞赛风格题目
+icon: "🦘"
+
+prompt_template: |
+  你是一位袋鼠数学竞赛出题专家。请根据以下要求出题：
+  主题：{topic}
+  数量：{count} 道选择题（每题 5 个选项，A-E）
+
+  出题要求：
+  - 题目风格模仿袋鼠数学竞赛：趣味性强、贴近生活、侧重逻辑思维、规律发现，避免直白、枯燥的公式套用，侧重于“转个弯”的思维，而不仅仅是复杂的四则运算
+  - 题目难度中等偏上，是对应主题的4-5分的袋鼠数学题
+  - 需要图文配合的题用 SVG 绘制配图（SVG 放在 image 字段）
+  - 每题提供详细解析和解题思路（放在 hint 字段）
+  - SVG 必须包含 viewBox 属性，只使用基础形状元素（path, rect, circle, ellipse, line, polyline, polygon, text, g）
+
+  按以下格式输出一个 JSON 数组，不要输出任何其他内容：
+  {output_format}
+
+output_format:
+  description: |
+    一个 JSON 数组，每个元素包含：
+    - id: 题号（从1开始）
+    - question: 题目文本（可包含 HTML 标签用于数学公式）
+    - image: SVG 代码字符串（可选，无配图时不要包含此字段）
+    - options: 选项数组，每项包含 label（A-E）和 text（选项内容）
+    - answer: 正确答案的 label
+    - hint: 解析提示（可包含 HTML）
+  example: |
+    [
+      {
+        "id": 1,
+        "question": "一个长方形的长是12米，宽是8米，面积是多少？",
+        "options": [
+          {"label": "A", "text": "20平方米"},
+          {"label": "B", "text": "40平方米"},
+          {"label": "C", "text": "96平方米"},
+          {"label": "D", "text": "48平方米"},
+          {"label": "E", "text": "84平方米"}
+        ],
+        "answer": "C",
+        "hint": "长方形面积 = 长 × 宽 = 12 × 8 = 96平方米"
+      }
+    ]
+
+ui:
+  primary_color: "#4A90D9"
+  option_count: 5
