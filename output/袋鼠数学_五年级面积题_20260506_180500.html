@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>袋鼠数学 · 五年级面积题</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #4A90D9;
+      --correct: #22c55e;
+      --wrong: #ef4444;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-secondary: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); border: 0;
+    }
+
+    /* Header */
+    .quiz-header {
+      background: var(--card);
+      border-bottom: 2px solid var(--primary);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: var(--shadow);
+    }
+    .quiz-title { font-size: 1.2rem; font-weight: 600; color: var(--primary); }
+    .quiz-progress { font-size: 0.9rem; color: var(--text-secondary); }
+
+    /* Question body */
+    .quiz-body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+    .question-text {
+      font-size: 1.15rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+      line-height: 1.8;
+    }
+    .quiz-image {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .quiz-image svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Options */
+    .options {
+      border: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 18px;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 1rem;
+      text-align: left;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .option-btn:hover:not(.locked) {
+      border-color: var(--primary);
+      background: #f0f7ff;
+    }
+    .option-btn:focus-visible {
+      outline: 3px solid var(--primary);
+      outline-offset: 2px;
+    }
+    .option-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .option-text { flex: 1; }
+    .option-icon { font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+
+    .option-btn.correct {
+      border-color: var(--correct);
+      background: #f0fdf4;
+    }
+    .option-btn.correct .option-label { background: var(--correct); color: #fff; }
+    .option-btn.correct .option-icon { color: var(--correct); }
+
+    .option-btn.wrong {
+      border-color: var(--wrong);
+      background: #fef2f2;
+    }
+    .option-btn.wrong .option-label { background: var(--wrong); color: #fff; }
+    .option-btn.wrong .option-icon { color: var(--wrong); }
+
+    .option-btn.locked { cursor: default; pointer-events: none; }
+
+    /* Feedback */
+    .feedback {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    .feedback.correct { background: #f0fdf4; color: #166534; }
+    .feedback.wrong { background: #fef2f2; color: #991b1b; }
+
+    /* Hint */
+    .hint-section { margin-bottom: 20px; }
+    .hint-toggle {
+      background: none;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding: 8px 0;
+    }
+    .hint-toggle:hover { text-decoration: underline; }
+    .hint-content {
+      background: #fffbeb;
+      border-left: 3px solid #f59e0b;
+      padding: 14px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin-top: 8px;
+      line-height: 1.8;
+    }
+
+    /* Navigation */
+    .quiz-nav {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    .nav-numbers {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .nav-num {
+      width: 36px;
+      height: 36px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      background: var(--card);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .nav-num:hover { border-color: var(--primary); }
+    .nav-num.current {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+    .nav-num.answered-correct {
+      border-color: var(--correct);
+      color: var(--correct);
+    }
+    .nav-num.answered-wrong {
+      border-color: var(--wrong);
+      color: var(--wrong);
+    }
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+    }
+    .nav-btn {
+      padding: 10px 24px;
+      border: 2px solid var(--primary);
+      border-radius: var(--radius);
+      background: var(--card);
+      color: var(--primary);
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .nav-btn:hover:not(:disabled) { background: var(--primary); color: #fff; }
+    .nav-btn:disabled { opacity: 0.4; cursor: default; }
+    .nav-btn:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+
+    /* Report */
+    .report-header {
+      text-align: center;
+      padding: 32px 16px 16px;
+    }
+    .report-header h1 { font-size: 1.6rem; }
+    .report-body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 16px 32px;
+    }
+    .score-section {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .score-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 12px; }
+    .score-bar {
+      height: 16px;
+      background: var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .score-bar-fill {
+      height: 100%;
+      background: var(--correct);
+      border-radius: 8px;
+      transition: width 0.5s ease;
+    }
+    .review-list { margin-bottom: 24px; }
+    .review-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .review-item.correct { color: #166534; }
+    .review-item.wrong { color: #991b1b; }
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .action-btn {
+      padding: 12px 28px;
+      border: 2px solid var(--primary);
+      border-radius: var(--radius);
+      background: var(--card);
+      color: var(--primary);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .action-btn:hover { background: var(--primary); color: #fff; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .quiz-header { padding: 12px 16px; flex-direction: column; gap: 4px; }
+      .quiz-body { padding: 16px 12px; }
+      .option-btn { min-height: 48px; padding: 12px 14px; }
+      .nav-numbers {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: flex-start;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+      }
+      .nav-num { min-width: 36px; flex-shrink: 0; }
+      .nav-btn { padding: 12px 16px; min-height: 48px; }
+    }
+
+    /* Print */
+    @media print {
+      .quiz-nav, .action-buttons, .hint-toggle { display: none; }
+      .hint-content { display: block !important; }
+      .quiz-header { position: static; box-shadow: none; }
+      .option-btn { border: 1px solid #ccc; }
+      .option-btn.locked { pointer-events: auto; }
+    }
+
+    /* Error state */
+    .error-message {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--wrong);
+    }
+
+    /* Accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <noscript>请启用 JavaScript 以使用此答题页面</noscript>
+  <div id="app"></div>
+
+  <script id="quiz-meta" type="application/json">{"title":"袋鼠数学 · 五年级面积题","icon":"🦘","primary_color":"#4A90D9"}</script>
+  <script id="quiz-data" type="application/json">[{"id":1,"question":"小明家有一个长方形花园，长12米，宽8米。花园中间挖了一个正方形的小池塘，边长3米。花园里种花的面积是多少平方米？","options":[{"label":"A","text":"84平方米"},{"label":"B","text":"87平方米"},{"label":"C","text":"89平方米"},{"label":"D","text":"93平方米"},{"label":"E","text":"96平方米"}],"answer":"B","hint":"花园总面积 = 12 × 8 = 96平方米<br>池塘面积 = 3 × 3 = 9平方米<br>种花面积 = 96 - 9 = <b>87平方米</b>"},{"id":2,"question":"如图所示，一个三角形的花坛，底边长10厘米，高6厘米。这个三角形花坛的面积是多少？","image":"<svg viewBox=\"0 0 260 180\" xmlns=\"http://www.w3.org/2000/svg\"><g><polygon points=\"30,150 230,150 30,30\" fill=\"#e0f0ff\" stroke=\"#4A90D9\" stroke-width=\"2.5\"/><line x1=\"30\" y1=\"30\" x2=\"30\" y2=\"150\" stroke=\"#ef4444\" stroke-width=\"1.5\" stroke-dasharray=\"6,4\"/><line x1=\"25\" y1=\"30\" x2=\"35\" y2=\"30\" stroke=\"#ef4444\" stroke-width=\"1.5\"/><line x1=\"25\" y1=\"150\" x2=\"35\" y2=\"150\" stroke=\"#ef4444\" stroke-width=\"1.5\"/><text x=\"130\" y=\"170\" font-size=\"14\" fill=\"#333\" text-anchor=\"middle\" font-family=\"sans-serif\">底 = 10厘米</text><text x=\"55\" y=\"95\" font-size=\"13\" fill=\"#ef4444\" text-anchor=\"start\" font-family=\"sans-serif\">高=6cm</text></g></svg>","options":[{"label":"A","text":"24平方厘米"},{"label":"B","text":"30平方厘米"},{"label":"C","text":"36平方厘米"},{"label":"D","text":"40平方厘米"},{"label":"E","text":"60平方厘米"}],"answer":"B","hint":"三角形面积 = 底 × 高 ÷ 2<br>= 10 × 6 ÷ 2<br>= <b>30平方厘米</b>"},{"id":3,"question":"小红的房间地面长6米、宽4米。她想用地砖铺满地面，每块地砖是边长2分米的正方形。她需要买多少块地砖？","options":[{"label":"A","text":"120块"},{"label":"B","text":"300块"},{"label":"C","text":"480块"},{"label":"D","text":"600块"},{"label":"E","text":"1200块"}],"answer":"D","hint":"注意单位换算！1米 = 10分米<br>房间面积 = 6米 × 4米 = 24平方米 = 2400平方分米<br>每块地砖面积 = 2 × 2 = 4平方分米<br>需要地砖 = 2400 ÷ 4 = <b>600块</b>"},{"id":4,"question":"如图，一个平行四边形和一个三角形，它们的底都是14厘米，高都是8厘米。平行四边形的面积比三角形大多少？","image":"<svg viewBox=\"0 0 420 180\" xmlns=\"http://www.w3.org/2000/svg\"><g><!-- 平行四边形 --><polygon points=\"20,150 160,150 190,30 50,30\" fill=\"#e0f0ff\" stroke=\"#4A90D9\" stroke-width=\"2\"/><line x1=\"20\" y1=\"30\" x2=\"20\" y2=\"150\" stroke=\"#ef4444\" stroke-width=\"1\" stroke-dasharray=\"5,3\"/><text x=\"90\" y=\"170\" font-size=\"12\" fill=\"#333\" text-anchor=\"middle\" font-family=\"sans-serif\">底=14cm</text><text x=\"12\" y=\"95\" font-size=\"11\" fill=\"#ef4444\" text-anchor=\"middle\" font-family=\"sans-serif\">8cm</text><text x=\"105\" y=\"95\" font-size=\"13\" fill=\"#4A90D9\" text-anchor=\"middle\" font-family=\"sans-serif\">平行四边形</text><!-- 三角形 --><polygon points=\"240,150 380,150 240,30\" fill=\"#fff3e0\" stroke=\"#ff9800\" stroke-width=\"2\"/><line x1=\"240\" y1=\"30\" x2=\"240\" y2=\"150\" stroke=\"#ef4444\" stroke-width=\"1\" stroke-dasharray=\"5,3\"/><text x=\"310\" y=\"170\" font-size=\"12\" fill=\"#333\" text-anchor=\"middle\" font-family=\"sans-serif\">底=14cm</text><text x=\"232\" y=\"95\" font-size=\"11\" fill=\"#ef4444\" text-anchor=\"middle\" font-family=\"sans-serif\">8cm</text><text x=\"320\" y=\"95\" font-size=\"13\" fill=\"#ff9800\" text-anchor=\"middle\" font-family=\"sans-serif\">三角形</text></g></svg>","options":[{"label":"A","text":"28平方厘米"},{"label":"B","text":"42平方厘米"},{"label":"C","text":"56平方厘米"},{"label":"D","text":"84平方厘米"},{"label":"E","text":"112平方厘米"}],"answer":"C","hint":"平行四边形面积 = 底 × 高 = 14 × 8 = 112平方厘米<br>三角形面积 = 底 × 高 ÷ 2 = 14 × 8 ÷ 2 = 56平方厘米<br>差 = 112 - 56 = <b>56平方厘米</b><br>规律：等底等高的平行四边形面积是三角形的2倍，所以差 = 三角形面积 = 56平方厘米"},{"id":5,"question":"一个正方形花园的边长是10米。花园四周铺了一条1米宽的小路（如图）。这条小路的面积是多少平方米？","image":"<svg viewBox=\"0 0 260 260\" xmlns=\"http://www.w3.org/2000/svg\"><g><!-- 外边界(花园+小路) --><rect x=\"20\" y=\"20\" width=\"220\" height=\"220\" fill=\"#ffe0b2\" stroke=\"#ff9800\" stroke-width=\"2\"/><rect x=\"42\" y=\"42\" width=\"176\" height=\"176\" fill=\"#c8e6c9\" stroke=\"#4caf50\" stroke-width=\"2\"/><!-- 小路宽度标注 --><line x1=\"20\" y1=\"32\" x2=\"42\" y2=\"32\" stroke=\"#ef4444\" stroke-width=\"1.5\"/><line x1=\"20\" y1=\"28\" x2=\"20\" y2=\"36\" stroke=\"#ef4444\" stroke-width=\"1\"/><line x1=\"42\" y1=\"28\" x2=\"42\" y2=\"36\" stroke=\"#ef4444\" stroke-width=\"1\"/><text x=\"31\" y=\"18\" font-size=\"11\" fill=\"#ef4444\" text-anchor=\"middle\" font-family=\"sans-serif\">1m</text><!-- 花园边长 --><text x=\"130\" y=\"238\" font-size=\"13\" fill=\"#4caf50\" text-anchor=\"middle\" font-family=\"sans-serif\">10m</text><text x=\"130\" y=\"130\" font-size=\"15\" fill=\"#4caf50\" text-anchor=\"middle\" font-family=\"sans-serif\">花园</text><text x=\"31\" y=\"148\" font-size=\"11\" fill=\"#ff9800\" text-anchor=\"middle\" font-family=\"sans-serif\">小路</text></g></svg>","options":[{"label":"A","text":"36平方米"},{"label":"B","text":"40平方米"},{"label":"C","text":"42平方米"},{"label":"D","text":"44平方米"},{"label":"E","text":"48平方米"}],"answer":"D","hint":"小路面积 = 大正方形面积 - 花园面积<br>大正方形边长 = 10 + 1 + 1 = 12米<br>大正方形面积 = 12 × 12 = 144平方米<br>花园面积 = 10 × 10 = 100平方米<br>小路面积 = 144 - 100 = <b>44平方米</b>"}]</script>
+
+  <script>
+  var Sanitize = {
+    SVG_ELEMENTS: new Set([
+      'svg', 'path', 'rect', 'circle', 'ellipse', 'line',
+      'polyline', 'polygon', 'text', 'tspan', 'g', 'defs',
+      'linearGradient', 'radialGradient', 'stop', 'title', 'desc'
+    ]),
+    HTML_TAGS: new Set([
+      'b', 'i', 'u', 'em', 'strong', 'sub', 'sup', 'br', 'span',
+      'p', 'ul', 'ol', 'li', 'table', 'tr', 'td', 'th', 'tbody', 'thead'
+    ]),
+    sanitize: function(svgString) {
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(svgString, 'image/svg+xml');
+      var errorNode = doc.querySelector('parsererror');
+      if (errorNode) return '';
+      var root = doc.documentElement;
+      if (!root.hasAttribute('viewBox')) return '';
+      this._cleanNode(root);
+      var serializer = new XMLSerializer();
+      return serializer.serializeToString(root);
+    },
+    _cleanNode: function(node) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        if (!this.SVG_ELEMENTS.has(node.tagName)) { node.remove(); return; }
+        var attrsToRemove = [];
+        for (var i = 0; i < node.attributes.length; i++) {
+          var attr = node.attributes[i];
+          if (attr.name.startsWith('on') || ((attr.name === 'href' || attr.name === 'xlink:href') && attr.value.trim().toLowerCase().startsWith('javascript:'))) { attrsToRemove.push(attr.name); }
+        }
+        for (var j = 0; j < attrsToRemove.length; j++) { node.removeAttribute(attrsToRemove[j]); }
+      }
+      var children = Array.prototype.slice.call(node.childNodes);
+      for (var k = 0; k < children.length; k++) { this._cleanNode(children[k]); }
+    },
+    sanitizeHTML: function(htmlString) {
+      var div = document.createElement('div');
+      div.innerHTML = htmlString;
+      this._cleanHTMLNode(div);
+      return div.innerHTML;
+    },
+    _cleanHTMLNode: function(node) {
+      var children = Array.prototype.slice.call(node.childNodes);
+      for (var i = 0; i < children.length; i++) {
+        var child = children[i];
+        if (child.nodeType === Node.ELEMENT_NODE) {
+          if (!this.HTML_TAGS.has(child.tagName.toLowerCase())) {
+            var text = document.createTextNode(child.textContent);
+            child.parentNode.replaceChild(text, child);
+          } else {
+            var attrsToRemove = [];
+            for (var j = 0; j < child.attributes.length; j++) {
+              var attr = child.attributes[j];
+              if (attr.name.startsWith('on') || ((attr.name === 'href' || attr.name === 'src') && attr.value.trim().toLowerCase().indexOf('javascript:') !== -1)) { attrsToRemove.push(attr.name); }
+            }
+            for (var k = 0; k < attrsToRemove.length; k++) { child.removeAttribute(attrsToRemove[k]); }
+            this._cleanHTMLNode(child);
+          }
+        }
+      }
+    }
+  };
+  var State = {
+    questions: [], meta: {}, currentIndex: 0, answers: {}, expandedHints: {}, isReportMode: false, isRetryMode: false, retryIds: [],
+    init: function() {
+      try {
+        var metaEl = document.getElementById('quiz-meta');
+        var dataEl = document.getElementById('quiz-data');
+        this.meta = JSON.parse(metaEl.textContent);
+        this.questions = JSON.parse(dataEl.textContent);
+        for (var i = 0; i < this.questions.length; i++) { this.questions[i].id = Number(this.questions[i].id); }
+      } catch (e) {
+        document.getElementById('app').innerHTML = '<div class="error-message"><h2>数据加载失败</h2><p>题目数据格式错误，请重新生成。</p></div>';
+        throw e;
+      }
+      this.currentIndex = 0; this.answers = {}; this.expandedHints = {}; this.isReportMode = false; this.isRetryMode = false; this.retryIds = [];
+      if (this.questions.length === 0) { document.getElementById('app').innerHTML = '<div class="error-message"><h2>没有题目</h2><p>题目数据为空，请重新生成。</p></div>'; }
+    },
+    getActiveQuestions: function() {
+      if (this.isRetryMode && this.retryIds.length > 0) { return this.questions.filter(function(q) { return this.retryIds.indexOf(q.id) !== -1; }.bind(this)); }
+      return this.questions;
+    },
+    getCurrentQuestion: function() { var active = this.getActiveQuestions(); return active[this.currentIndex] || null; },
+    selectAnswer: function(questionId, label) {
+      if (this.answers[questionId] !== undefined) return;
+      var newAnswers = {}; for (var key in this.answers) { if (this.answers.hasOwnProperty(key)) newAnswers[key] = this.answers[key]; }
+      newAnswers[questionId] = label; this.answers = newAnswers;
+    },
+    isAnswered: function(questionId) { return this.answers[questionId] !== undefined; },
+    isCorrect: function(questionId) { var q = this.questions.filter(function(q) { return q.id === questionId; })[0]; return q && this.answers[questionId] === q.answer; },
+    getAnsweredCount: function() { var active = this.getActiveQuestions(); var self = this; return active.filter(function(q) { return self.isAnswered(q.id); }).length; },
+    allAnswered: function() { return this.getAnsweredCount() === this.getActiveQuestions().length; },
+    getResults: function() {
+      var active = this.getActiveQuestions(); var self = this;
+      var correct = active.filter(function(q) { return self.isCorrect(q.id); }).length;
+      var wrong = active.filter(function(q) { return self.isAnswered(q.id) && !self.isCorrect(q.id); }).length;
+      return { total: active.length, correct: correct, wrong: wrong, accuracy: active.length > 0 ? Math.round((correct / active.length) * 100) : 0, questions: active.map(function(q) { return { id: q.id, question: q.question, correct: self.isCorrect(q.id), selected: self.answers[q.id], answer: q.answer }; }) };
+    },
+    startRetry: function() {
+      var results = this.getResults(); var wrongIds = results.questions.filter(function(r) { return !r.correct; }).map(function(r) { return r.id; });
+      if (wrongIds.length === 0) return false; this.retryIds = wrongIds;
+      var retrySet = new Set(wrongIds); var newAnswers = {};
+      for (var key in this.answers) { if (this.answers.hasOwnProperty(key) && !retrySet.has(Number(key))) { newAnswers[key] = this.answers[key]; } }
+      this.answers = newAnswers; this.isRetryMode = true; this.isReportMode = false; this.currentIndex = 0; return true;
+    }
+  };
+  var Render = {
+    render: function() { if (State.isReportMode) { this.renderReport(); } else { this.renderQuestion(); } },
+    renderQuestion: function() {
+      var q = State.getCurrentQuestion(); if (!q) return;
+      var active = State.getActiveQuestions(); var answered = State.isAnswered(q.id); var selected = State.answers[q.id];
+      var isCorrect = answered && selected === q.answer; var hintExpanded = State.expandedHints[q.id];
+      var imageHtml = q.image ? '<div class="quiz-image">' + Sanitize.sanitize(q.image) + '</div>' : '';
+      var optionsHtml = q.options.map(function(opt) {
+        var cls = 'option-btn';
+        if (answered) { if (opt.label === q.answer) cls += ' correct'; else if (opt.label === selected) cls += ' wrong'; cls += ' locked'; }
+        var iconHtml = (answered && opt.label === q.answer) ? '<span class="option-icon">✓</span>' : (answered && opt.label === selected && opt.label !== q.answer) ? '<span class="option-icon">✗</span>' : '';
+        return '<button class="' + cls + '" data-label="' + opt.label + '"' + (answered ? ' disabled' : '') + ' aria-label="选项 ' + opt.label + ': ' + opt.text + '"><span class="option-label">' + opt.label + '</span><span class="option-text">' + Sanitize.sanitizeHTML(opt.text) + '</span>' + iconHtml + '</button>';
+      }).join('');
+      var feedbackHtml = answered ? '<div class="feedback ' + (isCorrect ? 'correct' : 'wrong') + '">' + (isCorrect ? '✅ 回答正确！' : '❌ 回答错误！正确答案是 ' + q.answer) + '</div>' : '';
+      var hintHtml = '<div class="hint-section"><button class="hint-toggle" data-action="hint" aria-expanded="' + hintExpanded + '">' + (hintExpanded ? '▼' : '▶') + ' 查看解题提示</button><div class="hint-content" style="display:' + (hintExpanded ? 'block' : 'none') + '">' + Sanitize.sanitizeHTML(q.hint) + '</div></div>';
+      var navHtml = this._renderNav(active);
+      document.getElementById('app').innerHTML = '<header class="quiz-header"><div class="quiz-title">' + (State.meta.icon || '') + ' ' + (State.meta.title || '') + '</div><div class="quiz-progress">第 ' + (State.currentIndex + 1) + '/' + active.length + ' 题</div></header><main class="quiz-body"><section class="question"><p class="question-text">' + (State.currentIndex + 1) + '. ' + Sanitize.sanitizeHTML(q.question) + '</p>' + imageHtml + '</section><fieldset class="options" role="radiogroup"><legend class="sr-only">选项</legend>' + optionsHtml + '</fieldset>' + feedbackHtml + hintHtml + '</main><nav class="quiz-nav" aria-label="题目导航">' + navHtml + '<div class="nav-buttons"><button class="nav-btn" data-action="prev"' + (State.currentIndex === 0 ? ' disabled' : '') + '>← 上一题</button><button class="nav-btn" data-action="next"' + (State.currentIndex === active.length - 1 ? ' disabled' : '') + '>下一题 →</button></div></nav>';
+    },
+    _renderNav: function(active) {
+      return '<div class="nav-numbers">' + active.map(function(q, i) {
+        var cls = 'nav-num'; if (i === State.currentIndex) cls += ' current'; else if (State.isAnswered(q.id)) { cls += State.isCorrect(q.id) ? ' answered-correct' : ' answered-wrong'; }
+        return '<button class="' + cls + '" data-index="' + i + '" aria-label="第' + (i + 1) + '题">' + (i + 1) + '</button>';
+      }).join('') + '</div>';
+    },
+    renderReport: function() {
+      var r = State.getResults(); var barWidth = r.accuracy;
+      var reviewHtml = r.questions.map(function(item) {
+        var icon = item.correct ? '✅' : '❌'; var detail = item.correct ? '' : ' → ' + item.answer + ' (你选了 ' + item.selected + ')';
+        var shortQ = item.question.length > 30 ? item.question.substring(0, 30) + '...' : item.question;
+        return '<div class="review-item ' + (item.correct ? 'correct' : 'wrong') + '">' + item.id + '. ' + icon + ' ' + Sanitize.sanitizeHTML(shortQ) + detail + '</div>';
+      }).join('');
+      document.getElementById('app').innerHTML = '<header class="report-header"><h1>🎉 答题报告</h1></header><main class="report-body"><div class="score-section"><div class="score-text">正确：' + r.correct + '/' + r.total + '    正确率：' + r.accuracy + '%</div><div class="score-bar"><div class="score-bar-fill" style="width:' + barWidth + '%"></div></div></div><section class="review-list">' + reviewHtml + '</section><div class="action-buttons">' + (r.wrong > 0 ? '<button class="action-btn" data-action="retry">重新做错题</button>' : '') + '<button class="action-btn" data-action="print">导出为PDF</button></div></main>';
+    }
+  };
+  var Actions = {
+    _reportTimeout: null,
+    init: function() {
+      document.getElementById('app').addEventListener('click', function(e) {
+        var target = e.target.closest('[data-label], [data-index], [data-action]');
+        if (!target) return;
+        if (target.dataset.label) { Actions.handleOption(target.dataset.label); }
+        else if (target.dataset.index !== undefined) { Actions.handleNav(parseInt(target.dataset.index, 10)); }
+        else if (target.dataset.action) { Actions.handleAction(target.dataset.action); }
+      });
+      document.addEventListener('keydown', function(e) {
+        if (State.isReportMode) return; var active = State.getActiveQuestions();
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); if (State.currentIndex > 0) { State.currentIndex--; Render.render(); } }
+        else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); if (State.currentIndex < active.length - 1) { State.currentIndex++; Render.render(); } }
+      });
+    },
+    handleOption: function(label) {
+      var q = State.getCurrentQuestion(); if (!q || State.isAnswered(q.id)) return;
+      State.selectAnswer(q.id, label); Render.render();
+      if (State.allAnswered()) { var self = this; if (self._reportTimeout) clearTimeout(self._reportTimeout); self._reportTimeout = setTimeout(function() { State.isReportMode = true; Render.render(); self._reportTimeout = null; }, 1500); }
+    },
+    handleNav: function(index) { if (this._reportTimeout) { clearTimeout(this._reportTimeout); this._reportTimeout = null; } State.currentIndex = index; Render.render(); },
+    handleAction: function(action) {
+      switch (action) {
+        case 'prev': if (State.currentIndex > 0) { State.currentIndex--; Render.render(); } break;
+        case 'next': var active = State.getActiveQuestions(); if (State.currentIndex < active.length - 1) { State.currentIndex++; Render.render(); } break;
+        case 'hint': var q = State.getCurrentQuestion(); if (q) { var newHints = {}; for (var key in State.expandedHints) { if (State.expandedHints.hasOwnProperty(key)) newHints[key] = State.expandedHints[key]; } newHints[q.id] = !State.expandedHints[q.id]; State.expandedHints = newHints; Render.render(); } break;
+        case 'retry': if (State.startRetry()) { Render.render(); } break;
+        case 'print': window.print(); break;
+      }
+    }
+  };
+  State.init();
+  Actions.init();
+  Render.render();
+  </script>
+</body>
+</html>
